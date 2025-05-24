@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Event Interaction Hub</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+      line-height: 1.5;
+    }
+    h1, h2 
+      color: #007BFF;
+      text-align: center;
+      margin-top: 40px;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+    section {
+      background: #fff;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 25px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    button {
+      width: 100%;
+      background-color: #007BFF;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 1rem;
+      padding: 12px;
+      cursor: pointer;
+      transition: background-color 0.25s ease;
+      margin-top: 15px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    button:focus {
+      outline: 3px solid #3399ff;
+    }
+    input[type="text"], select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 6px;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      border: 1.5px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease;
+      font-family: inherit;
+    }
+    input[type="text"]:focus, select:focus, textarea:focus {
+      border-color: #007BFF;
+      outline: none;
+    label {
+      font-weight: 600;
+      margin-top: 12px;
+      display: block;
+      user-select: none;
+    }
+    #phoneError, #charCount, #feeDisplay, #confirmation {
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+    #phoneError {
+      color: #d9534f;
+    }
+    #charCount {
+      color: #555;
+    }
+    #feeDisplay {
+      font-weight: 700;
+      color: #2b6cb0;
+      margin-bottom: 10px;
+    }
+    #confirmation {
+      color: green;
+      font-weight: 700;
+      margin-top: 15px;
+      text-align: center;
+    }
+    #eventImage {
+      width: 100%;
+      max-width: 300px;
+      margin-top: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #eventImage.enlarged {
+      transform: scale(1.5);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      border-radius: 12px;
+    }
+    .error {
+      color: #d9534f;
+    }
+    .success {
+      color: #28a745;
+    }
+    #geoOutput {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.1rem;
+      color: #333;
+      min-height: 60px;
+    }
+    #debugBox {
+      width: 100%;
+      max-width: 350px;
+      height: 110px;
+      background-color: lightblue;
+      margin: 20px auto 30px auto;
+      padding: 15px 12px;
+      border: 2px solid #007BFF;
+      border-radius: 10px;
+      color: #003366;
+      font-size: 1rem;
+      text-align: center;
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+    #testBtn {
+      max-width: 350px;
+      width: 100%;
+      display: block;
+      margin: 15px auto 30px auto;
+      background-color: #0069d9;
+    }
+    #testBtn:hover {
+      background-color: #004a99;
+    }
+  </style>
+</head>
+<body>
+  <h1>Event Interaction Hub</h1>
+  <section id="feedbackSection">
+    <h2>Event Feedback</h2>
+    <form id="feedbackForm" novalidate>
+      <label for="phone">Phone Number</label>
+      <input type="text" id="phone" placeholder="e.g. 123-456-7890" autocomplete="tel">
+      <div id="phoneError" class="error" aria-live="polite"></div>
+      <label for="eventSelect">Event</label>
+      <select id="eventSelect">
+        <option value="">-- Choose an Event --</option>
+        <option value="10">Picnic ($10)</option>
+        <option value="25">Music Festival ($25)</option>
+        <option value="15">Craft Workshop ($15)</option>
+      </select>
+      <div id="feeDisplay"></div>
+      <label for="feedback">Your Feedback</label>
+      <textarea id="feedback" rows="4" placeholder="Share your thoughts..." maxlength="500"></textarea>
+      <div id="charCount">0 characters</div>
+      <label>Event Snapshot</label>
+      <img src="event.jpg" alt="Event Photo" id="eventImage" title="Double-click to enlarge or shrink">
+      <button type="button" id="submitFeedbackBtn">Submit Feedback</button>
+      <div id="confirmation" role="alert" aria-live="polite"></div>
+    </form>
+  </section>
+  <section id="preferencesSection">
+    <h2>Save User Preferences</h2>
+    <div class="container">
+      <label for="prefEventSelect">Select Your Preferred Event Type</label>
+      <select id="prefEventSelect" aria-label="Select preferred event">
+        <option value="">-- Choose an Event --</option>
+        <option value="picnic">Picnic in the Park</option>
+        <option value="music">Music Festival</option>
+        <option value="workshop">Craft Workshop</option>
+      </select>
+      <buttn id="savePrefBtn">Save Preference</buttn>
+      <button id="clearPrefBtn" style="background-color:#d9534f; margin-top:8px;">Clear Preferences</button>
+      <div id="status"></div>
+    </div>
+  </section>
+  <section id="geolocationSection">
+    <h2>Find Nearby Events</h2>
+    <button id="geoBtn">Find Nearby Events</button>
+    <div id="geoOutput"></div>
+  </section>
+  <section id="debugSection">
+    <h2>Debugging with Chrome DevTools</h2>
+    <div id="debugBox" tabindex="0">
+      Hover or click me to see console logs and experiment with styles.
+    </div>
+    <button id="testBtn">Click me</button>
+  </section>
+  <script>
+    const phoneInput = document.getElementById('phone');
+    const phoneError = document.getElementById('phoneError');
+    const eventSelect = document.getElementById('eventSelect');
+    const feeDisplay = document.getElementById('feeDisplay');
+    const feedbackText = document.getElementById('feedback');
+    const charCount = document.getElementById('charCount');
+    const eventImage = document.getElementById('eventImage');
+    const submitFeedbackBtn = document.getElementById('submitFeedbackBtn');
+    const confirmation = document.getElementById('confirmation');
+    function validatePhone() {
+      const phone = phoneInput.value.trim();
+      const phoneDigits = phone.replace(/\D/g, "");
+      if (!phone || phoneDigits.length < 10) {
+        phoneError.textContent = "Please enter a valid phone number with at least 10 digits.";
+        return false;
+      }
+      phoneError.textContent = "";
+      return true;
+    }
+    function displayFee() {
+      const val = eventSelect.value;
+      feeDisplay.textContent = val ? `Event Fee: $${val}` : "";
+    }
+    function countCharacters() {
+      const length = feedbackText.value.length;
+      charCount.textContent = `${length} character${length !== 1 ? 's' : ''}`;
+    }
+    function enlargeImage() {
+      eventImage.classList.toggle('enlarged');
+    }
+    function submitFeedback() {
+      confirmation.textContent = "";
+      if (!validatePhone()) {
+        confirmation.textContent = "";
+        phoneInput.focus();
+        return;
+      }
+      if (!eventSelect.value) {
+        feeDisplay.textContent = "";
+        eventSelect.focus();
+        return;
+      }
+      if (!feedbackText.value.trim()) {
+        confirmation.textContent = "";
+        feedbackText.focus();
+        return;
+      }
+      confirmation.textContent = "Thank you for your feedback!";
+      phoneInput.value = "";
+      eventSelect.value = "";
+      feeDisplay.textContent = "";
+      feedbackText.value = "";
+      countCharacters();
+      if (eventImage.classList.contains('enlarged')) {
+        eventImage.classList.remove('enlarged');
+      }
+    }
+    phoneInput.addEventListener('blur', validatePhone);
+    eventSelect.addEventListener('change', displayFee);
+    feedbackText.addEventListener('input', countCharacters);
+    eventImage.addEventListener('dblclick', enlargeImage);
+    submitFeedbackBtn.addEventListener('click', submitFeedback);
+    countCharacters();
+    const prefEventSelect = document.getElementById('prefEventSelect');
+    const savePrefBtn = document.getElementById('savePrefBtn');
+    const clearPrefBtn = document.getElementById('clearPrefBtn');
+    const status = document.getElementById('status');
+    winow.addEventListener('load', () => {
+      const saved = localStorage.getItem('preferredEvent');
+      if (saved) {
+        prefEventSelect.value = saved;
+        status.textContent = `Restored preference: ${saved}`;
+        status.className = 'success';
+      }
+    })
+    function savePreference() {
+      const selectedValue = prefEventSelect.value;
+      if (selectedValue) {
+        localStorage.setItem('preferredEvent', selectedValue);
+        sessionStorage.setItem('recentEventSelection', selectedValue);
+        status.textContent = `Saved: ${selectedValue}`;
+        status.className = 'success';
+      } else {
+        status.textContent = 'Please select an event before saving.';
+        status.className = 'error';
+      }
+    }
+    function clearPreferences() {
+      localStorage.removeItem('preferredEvent');
+      sessionStorage.clear();
+      prefEventSelect.value = "";
+      status.textContent = 'Preferences cleared.';
+      status.className = 'success';
+    }
+    savePrefBtn.addEventListener('click', savePreference);
+    clearPrefBtn.addEventListener('click', clearPreferences);
+    const geoBtn = document.getElementById('geoBtn');
+    const geoOutput = document.getElementById('geoOutput');
+    function getLocation() {
+      geoOutput.textContent = "Locating...";
+      if (!navigator.geolocation) {
+        geoOutput.innerHTML = "<span class='error'>Geolocation is not supported by your browser.</span>";
+        return;
+      }
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      };
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          geoOutput.innerHTML = `
+            <span class='success'>Your location:</span><br>
+            Latitude: ${latitude.toFixed(5)}<br>
+            Longitude: ${longitude.toFixed(5)}
+          `;
+        },
+        (error) => {
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              geoOutput.innerHTML = "<span class='error'>Permission denied. Please allow location access.</span>";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              geoOutput.innerHTML = "<span class='error'>Location information is unavailable.</span>";
+              break;
+            case error.TIMEOUT:
+              geoOutput.innerHTML = "<span class='error'>Request timed out. Try again.</span>";
+              break;
+            default:
+              geoOutput.innerHTML = `<span class='error'>An unknown error occurred: ${error.message}</span>`;
+          }
+        },
+        options
+      );
+    }
+    geoBtn.addEventListener('click', getLocation);
+    const debugBox = document.getElementById('debugBox');
+    const testBtn = document.getElementById('testBtn');
+    console.log("Page loaded");
+    debugBox.addEventListener('mouseenter', () => {
+      console.log("Mouse entered box");
+      debugBox.style.backgroundColor = 'lightcoral';
+    });
+    debugBox.addEventListener('mouseleave', () => {
+      console.log("Mouse left box");
+      debugBox.style.backgroundColor = 'lightblue';
+    });
+    testBtn.addEventListener('click', () => {
+      let message = "Button clicked!";
+      console.log(message);
+      debugger;
+      message += " Have a nice day!";
+      console.log(message);
+    });
+  </script>
+</body>
+</html>

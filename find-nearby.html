@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Geolocation for Nearby Events</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #eef4f7;
+      padding: 30px;
+      text-align: center;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 1rem;
+      border: none;
+      background-color: #007BFF;
+      color: white;
+      border-radius: 6px
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      color: #333;
+    }
+    .error {
+      color: red;
+    }
+    .success {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h2>Find earby Events</h2>
+  <button onclick="getLocation()">Find Nearby Events</button>
+  <div id="output"></div>
+  <script>
+    function getLocation() {
+      const output = document.getElementById('output');
+      output.textContent = "Locating...";
+      if (!navigator.geolocation) {
+        output.innerHTML = "<span class='error'>Geolocation is not supported by your browser.</span>";
+        return;
+      }
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      };
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          output.innerHTML = `
+            <span class='success'>Your location:</span><br>
+            Latitude: ${latitude.toFixed(5)}<br>
+            Longitude: ${longitude.toFixed(5)}
+          ;
+        },
+        (error) => {
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              output.innerHTML = "<span class='error'>Permission denied. Please allow location access.</span>";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              output.innerHTML = "<span class='error'>Location information is unavailable.</span>";
+              break;
+            case error.TIMEOUT:
+              output.innerHTML = "<span class='error'>Request timed out. Try again.</span>";
+              break;
+            default:
+              output.innerHTML = `<span class='error'>An unknown error occurred: ${error.message}</span>`;
+          }
+        },
+        options
+      );
+    }
+  </script>
+</body>
+</html>

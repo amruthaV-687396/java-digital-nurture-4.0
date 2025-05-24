@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Save User Preferences</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f5f9;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 1em;
+    }
+    #status {
+      margin-top: 15px;
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Select Your Preferred Event Type</h2>
+    <select id="eventSelect">
+      <option value="">-- Choose an Event --</option>
+      <option value="picnic">Picnic in the Park</option>
+      <option value="music">Music Festival</option>
+      <option value="workshop">Craft Workshop</option>
+    </select>
+    <button onclick="savePreference()">Save Preference</button>
+    <button onclick="clearPreferences()">Clear Preferences</button>
+    <div id="status"></div>
+  </div>
+  <script>
+    const eventSelect = document.getElementById('eventSelect');
+    const status = document.getElementById('status');
+    window.onload = () => {
+      const saved = localStorage.getItem('preferredEvent');
+      if (saved) {
+        eventSelect.value = saved;
+        status.textContent = `Restored preference: ${saved}`;
+      }
+    };
+    function savePreference() {
+      const selectedValue = eventSelect.value;
+      if (selectedValue) {
+        localStorage.setItem('preferredEvent', selectedValue);
+        sessionStorage.setItem('recentEventSelection', selectedValue);
+        status.textContent = `Saved: ${selectedValue}`
+      } else {
+        status.textContent = 'Please select an event before saving.';
+      }
+    }
+    function clearPreferences() {
+      localStorage.removeItem('preferredEvent');
+      sessionStorage.clear();
+      eventSelect.value = "";
+      status.textContent = 'Preferences cleared.';
+    }
+  </script>
+</body>
+</html>
